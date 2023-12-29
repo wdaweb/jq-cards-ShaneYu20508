@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        #game {
+            width: 100%;
+            height: 100vh;
+            background-size: 100%;
+            margin: auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        .card {
+            width: 150px;
+            height: 270px;
+            position: relative;
+            float: left;
+            margin: 10px;
+            /* 設定子元素在 3D 空間內 */
+            transform-style: preserve-3d;
+            transition: 1s;
+        }
+
+        .card-front {
+            width: 100%;
+            height: 100%;
+            background-image: url(./yugiohthing/bbw1.jpg);
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            position: absolute;
+
+            /* 隱藏背面 */
+            backface-visibility: hidden;
+        }
+
+        .card-back {
+            width: 100%;
+            height: 100%;
+            background-image: url(./yugiohthing/back.png);
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            position: absolute;
+            transform: rotateY(180deg);
+
+            /* 隱藏背面  */
+            backface-visibility: hidden;
+        }
+
+        .card-close {
+            transform: rotateY(180deg);
+        }
+    </style>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js'
+        integrity='sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g=='
+        crossorigin='anonymous'></script>
+</head>
+
+<body>
+    <!-- <div class="card">
+        <div class="card-front"></div>
+        <div class="card-back"></div>
+    </div> -->
+    <div id="game"></div>
+
+    <script>
+        // 產生 6 張卡片
+        for (let i = 0; i < 6; i++) {
+            $('#game').append(`
+            <div class="card card-close">
+                <div class="card-front"></div>
+                <div class="card-back"></div>
+            </div>
+            `)
+        }
+
+        $('body').append('<audio id="trap" src="./yugiohthing/explosion-boom-meme.mp3"></audio>')
+        $('body').append('<audio id="win" src="./yugiohthing/kamida.mp3"></audio>')
+
+        // 決定每張卡
+        $('.card').each(function (index) {
+            const number = index + 1
+
+            console.log(index, number)
+            $(this).find('.card-front').css('background-image', `url(./yugiohthing/bbw${number}.jpg)`)
+            $(this).attr('data-number', number)
+        })
+
+        // 打亂
+        function suffleCards() {
+            for (let i = 0; i < 30; i++) {
+                const randomA = Math.round(Math.random() * 15)
+                const randomB = Math.round(Math.random() * 15)
+                $('.card').eq(randomA).insertAfter($('.card').eq(randomB))
+            }
+        }
+
+        $('#game').on('click', '.card', function () {
+            const cardNumber = parseInt($(this).attr('data-number'));
+
+            if (
+                $('.card:not(.card-close)').length < 5 &&
+                $(this).hasClass('card-close') &&
+                !$(this).hasClass('card-ok')
+            ) {
+                $(this).removeClass('card-close');
+            }
+
+            if (cardNumber === 6) {
+                playTrapAudio();
+                setTimeout(function () {
+                    alert('魔法卡，破壞輪發動！');
+                    resetGame();
+                }, 200);
+            }
+
+            if ($('.card:not(.card-close)').length === 5 && cardNumber !== 6) {
+                playWinAudio();
+                setTimeout(function () {
+                    alert('召喚黑暗大法師');
+                    resetGame();
+                }, 500)
+
+            }
+        });
+
+        function resetGame() {
+            $('.card').addClass('card-close').removeClass('card-ok');
+            setTimeout(suffleCards);
+            stopAudio();
+        }
+
+        function playTrapAudio() {
+            const trap = document.getElementById('trap');
+            trap.play()
+        }
+
+        function playWinAudio() {
+            const win = document.getElementById('win')
+            win.play()
+        }
+
+        // 停止音樂
+        function stopAudio() {
+            const win = document.getElementById('win');
+            win.pause();
+            win.currentTime = 0;
+        }
+
+        suffleCards();
+
+    </script>
+</body>
+
+</html>
